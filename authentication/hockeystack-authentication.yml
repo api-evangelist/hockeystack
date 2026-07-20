@@ -1,0 +1,42 @@
+generated: '2026-07-19'
+method: searched
+source: https://app.hockeystack.com/.well-known/oauth-authorization-server
+docs: https://docs.hockeystack.com/
+summary:
+  types:
+  - oauth2
+  oauth2_flows:
+  - authorizationCode
+  pkce: true
+  dynamic_client_registration: true
+  bearer_methods:
+  - header
+schemes:
+- name: OmniOAuth2
+  type: oauth2
+  description: >-
+    OAuth 2.0 authorization-code flow (PKCE / S256) protecting the HockeyStack
+    Omni MCP server. Supports refresh tokens and RFC 7591 dynamic client
+    registration. Access tokens are presented as Bearer tokens in the
+    Authorization header against the protected resource
+    https://hockeystack.com/api/mcp/omni.
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://hockeystack.com/api/mcp/oauth/authorize
+    tokenUrl: https://hockeystack.com/api/mcp/oauth/token
+    refreshUrl: https://hockeystack.com/api/mcp/oauth/token
+    scopes:
+      omni:tools: Access to HockeyStack Omni agent tools
+  token_endpoint_auth_methods:
+  - client_secret_post
+  - none
+  registration_endpoint: https://hockeystack.com/api/mcp/oauth/register
+  revocation_endpoint: https://hockeystack.com/api/mcp/oauth/revoke
+  sources:
+  - well-known/hockeystack-oauth-authorization-server.json
+notes: >-
+  HockeyStack does not publish a general-purpose REST API with an OpenAPI spec;
+  its programmatic surface is the hosted Omni MCP server, authenticated via this
+  OAuth 2.0 authorization server. Product data integrations are otherwise
+  configured through prebuilt connectors (Salesforce, HubSpot, ad platforms,
+  Snowflake, BigQuery, Segment) inside the app rather than a public API.
