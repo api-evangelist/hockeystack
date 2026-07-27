@@ -1,8 +1,30 @@
 aid: hockeystack
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/hockeystack.png
 name: HockeyStack
-description: 'HockeyStack is a company surfaced as a portfolio company of bessemer-venture-partners and
-  added to the API Evangelist network as a stub for enrichment. Sector: data. This profile is a lead awaiting
-  the enrichment pipeline.'
+description: >-
+  HockeyStack is a B2B revenue and marketing data intelligence platform that unifies
+  marketing, sales, and product data to reveal the full buyer journey from first
+  anonymous (cookieless) touch to closed-won. It applies multiple attribution models,
+  account and intent scoring, lift/incrementality analysis, and no-SQL custom
+  dashboards, and deploys AI "Revenue Agents" (via its ATLAS data foundation and the
+  hosted "Omni" MCP server) to forecast pipeline, brief accounts, and recommend
+  next-best actions. Data flows bidirectionally through prebuilt connectors to CRMs
+  (Salesforce, HubSpot), ad platforms (LinkedIn, Google, Facebook, TikTok), ABM tools,
+  data warehouses (Snowflake, BigQuery), and CDPs (Segment). Its public programmatic
+  surface is the OAuth-secured Omni MCP server rather than a general REST API. Backed
+  by Bessemer Venture Partners.
 url: https://raw.githubusercontent.com/api-evangelist/hockeystack/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
@@ -12,10 +34,17 @@ x-tier: stub
 x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-19'
 tags:
 - Company
 - Data
+- Marketing Analytics
+- Attribution
+- Revenue Intelligence
+- B2B
+- Account Intelligence
+- MCP
+- AI Agents
 apis: []
 maintainers:
 - FN: Kin Lane
@@ -25,3 +54,44 @@ maintainers:
 common:
 - type: Website
   url: https://www.hockeystack.com/
+- type: DeveloperPortal
+  url: https://docs.hockeystack.com/
+- type: Documentation
+  url: https://docs.hockeystack.com/
+- type: Blog
+  url: https://hockeystack.com/blog
+- type: Pricing
+  url: https://hockeystack.com/pricing
+- type: Login
+  url: https://app.hockeystack.com/login
+- type: TermsOfService
+  url: https://hockeystack.com/legal/terms-of-service
+- type: PrivacyPolicy
+  url: https://hockeystack.com/legal/privacy-policy
+- type: Integrations
+  url: https://hockeystack.com/integrations
+- type: TrustCenter
+  url: https://security.hockeystack.com/
+- type: MCPServer
+  url: mcp/hockeystack-mcp.yml
+- type: WellKnown
+  url: well-known/hockeystack-well-known.yml
+- type: LLMsTxt
+  url: llms/hockeystack-llms.txt
+- type: Authentication
+  url: authentication/hockeystack-authentication.yml
+- type: OAuthScopes
+  url: scopes/hockeystack-scopes.yml
+- type: DomainSecurity
+  url: security/hockeystack-domain-security.yml
+- type: Conformance
+  url: conformance/hockeystack-conformance.yml
+- type: Conventions
+  url: conventions/hockeystack-conventions.yml
+- type: ChangeLog
+  url: changelog/hockeystack-changelog.yml
+x-enrichment:
+  date: '2026-07-19'
+  status: backfilled
+  pass: local-v1
+  note: backfilled from .gitignore signal + verified work evidence

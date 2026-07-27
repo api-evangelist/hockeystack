@@ -1,0 +1,1 @@
+{"resource":"https://hockeystack.com/api/mcp/omni","authorization_servers":["https://hockeystack.com"],"scopes_supported":["omni:tools"],"resource_name":"HockeyStack Omni","bearer_methods_supported":["header"]}

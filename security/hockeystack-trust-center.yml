@@ -1,0 +1,21 @@
+generated: '2026-07-19'
+method: searched
+probe: true
+url: https://security.hockeystack.com/
+platform: Vanta Trust Center
+certifications: []
+evidence:
+- source: https://security.hockeystack.com/
+  keywords:
+  - trust center
+  - security
+  - compliance
+  - vanta
+notes: >-
+  HockeyStack operates a Vanta-powered Trust Center at security.hockeystack.com
+  (verified: page served by Vanta trust-report app, canonical
+  https://security.hockeystack.com). Named framework badges (e.g. SOC 2 / ISO 27001)
+  are rendered client-side by the Vanta SPA and were not machine-extractable in this
+  pass, so certifications[] is left empty rather than fabricated. Revisit with a
+  browser-rendered fetch to enumerate exact frameworks; do NOT emit a Compliance
+  pointer until specific certifications are verified.

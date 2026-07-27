@@ -1,0 +1,29 @@
+generated: '2026-07-19'
+method: searched
+source: live probes of HockeyStack hosts
+hosts:
+- host: https://app.hockeystack.com
+  documents:
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: hockeystack-openid-configuration.json
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: hockeystack-oauth-authorization-server.json
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: hockeystack-oauth-protected-resource.json
+- host: https://www.hockeystack.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+notes: >-
+  HockeyStack exposes an OAuth 2.0 authorization-server + protected-resource
+  discovery surface backing its hosted MCP server ("HockeyStack Omni"). The
+  protected resource is https://hockeystack.com/api/mcp/omni; the authorization
+  server is https://hockeystack.com. No security.txt / ai-plugin.json / api-catalog
+  published at time of probe.

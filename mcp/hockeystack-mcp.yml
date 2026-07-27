@@ -1,0 +1,35 @@
+generated: '2026-07-19'
+method: searched
+status: published
+source: https://app.hockeystack.com/.well-known/oauth-protected-resource
+server:
+  name: HockeyStack Omni
+  transport: http
+  url: https://hockeystack.com/api/mcp/omni
+  resource: https://hockeystack.com/api/mcp/omni
+  resource_name: HockeyStack Omni
+authorization:
+  type: oauth2
+  authorization_servers:
+  - https://hockeystack.com
+  authorization_endpoint: https://hockeystack.com/api/mcp/oauth/authorize
+  token_endpoint: https://hockeystack.com/api/mcp/oauth/token
+  registration_endpoint: https://hockeystack.com/api/mcp/oauth/register
+  revocation_endpoint: https://hockeystack.com/api/mcp/oauth/revoke
+  grant_types_supported:
+  - authorization_code
+  - refresh_token
+  code_challenge_methods_supported:
+  - S256
+  dynamic_client_registration: true
+  bearer_methods_supported:
+  - header
+  scopes_supported:
+  - omni:tools
+tools: []
+notes: >-
+  Official hosted/remote MCP server discovered via RFC 9728 OAuth protected-resource
+  metadata + RFC 8414 authorization-server metadata. The MCP endpoint requires an
+  OAuth bearer token (scope omni:tools) so the live tool list could not be enumerated
+  anonymously; tools[] intentionally left empty rather than fabricated. Connect with an
+  MCP client that supports OAuth authorization-code + PKCE and dynamic client registration.

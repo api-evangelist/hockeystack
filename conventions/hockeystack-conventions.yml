@@ -1,0 +1,40 @@
+generated: '2026-07-19'
+method: searched
+source: https://app.hockeystack.com/.well-known/oauth-protected-resource
+summary: >-
+  HockeyStack's public programmatic surface is the hosted "Omni" MCP server rather
+  than a REST API. Cross-cutting semantics below describe how an agent/client
+  authenticates and calls it. No idempotency, pagination, or rate-limit contract is
+  publicly documented for this surface.
+authentication:
+  style: oauth2
+  flow: authorizationCode
+  pkce: S256
+  token_placement: Authorization header (Bearer)
+  scopes:
+  - omni:tools
+  dynamic_client_registration: true
+  see: authentication/hockeystack-authentication.yml
+transport:
+  protocol: MCP over HTTP
+  resource: https://hockeystack.com/api/mcp/omni
+idempotency:
+  supported: unknown
+  notes: No idempotency-key contract is publicly documented.
+pagination:
+  style: unknown
+  notes: Not publicly documented for the MCP surface.
+versioning:
+  scheme: unknown
+  notes: >-
+    Product ships dated release notes (see changelog/hockeystack-changelog.yml); no
+    API version identifier is exposed on the MCP surface.
+error_envelope:
+  style: unknown
+rate_limiting:
+  signaled: unknown
+cross_links:
+  authentication: authentication/hockeystack-authentication.yml
+  scopes: scopes/hockeystack-scopes.yml
+  mcp: mcp/hockeystack-mcp.yml
+  changelog: changelog/hockeystack-changelog.yml

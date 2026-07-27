@@ -1,0 +1,25 @@
+generated: '2026-07-19'
+method: searched
+source: https://app.hockeystack.com/.well-known/oauth-authorization-server
+docs: https://app.hockeystack.com/.well-known/oauth-protected-resource
+schemes:
+- name: OmniOAuth2
+  source: well-known/hockeystack-oauth-authorization-server.json
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://hockeystack.com/api/mcp/oauth/authorize
+    tokenUrl: https://hockeystack.com/api/mcp/oauth/token
+scopes:
+- scope: omni:tools
+  description: >-
+    Grants an OAuth client access to the HockeyStack Omni MCP tool surface
+    (revenue/marketing/account intelligence agent tools) on the protected
+    resource https://hockeystack.com/api/mcp/omni.
+  flows:
+  - authorizationCode
+  sources:
+  - well-known/hockeystack-oauth-authorization-server.json
+notes: >-
+  Only one scope (omni:tools) is advertised in the authorization-server and
+  protected-resource discovery documents. No finer-grained scope reference is
+  published.

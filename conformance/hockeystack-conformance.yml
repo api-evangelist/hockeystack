@@ -1,0 +1,28 @@
+generated: '2026-07-19'
+method: derived
+source: well-known/ OAuth discovery documents
+standards:
+- id: oauth2
+  conforms: true
+  evidence: RFC 6749 authorization-code flow advertised in authorization-server metadata
+- id: oauth2-pkce
+  conforms: true
+  evidence: code_challenge_methods_supported includes S256 (RFC 7636)
+- id: rfc8414-oauth-authorization-server-metadata
+  conforms: true
+  evidence: /.well-known/oauth-authorization-server returns 200 with issuer + endpoints
+- id: rfc9728-oauth-protected-resource-metadata
+  conforms: true
+  evidence: /.well-known/oauth-protected-resource returns 200 with resource + authorization_servers
+- id: rfc7591-dynamic-client-registration
+  conforms: true
+  evidence: registration_endpoint advertised in discovery metadata
+- id: oidc-discovery
+  conforms: true
+  evidence: /.well-known/openid-configuration returns 200
+- id: mcp
+  conforms: true
+  evidence: hosted MCP server (HockeyStack Omni) at https://hockeystack.com/api/mcp/omni
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: no OpenAPI / error catalog published to confirm

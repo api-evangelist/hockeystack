@@ -1,0 +1,33 @@
+generated: '2026-07-19'
+method: searched
+source: https://docs.hockeystack.com/release-notes.md
+scheme: dated
+current_version: '2026-04-21'
+url: https://docs.hockeystack.com/release-notes
+notes: >-
+  HockeyStack publishes dated product release notes (roughly biweekly) on its docs
+  site. Entries below are the recent window captured from the docs index (llms.txt);
+  per-entry highlights are intentionally left general rather than fabricated, since
+  only the dated entry pages (not full bodies) were harvested.
+entries:
+- version: '2026-04-21'
+  date: '2026-04-21'
+  url: https://docs.hockeystack.com/release-notes/april-21-2026
+- version: '2026-Q1'
+  date: '2026-03-31'
+  url: https://docs.hockeystack.com/release-notes/q1-2026
+- version: '2026-03-23'
+  date: '2026-03-23'
+  url: https://docs.hockeystack.com/release-notes/q1-2026/march-23-2026
+- version: '2026-02-09'
+  date: '2026-02-09'
+  url: https://docs.hockeystack.com/release-notes/q1-2026/february-9-2026
+- version: '2026-01-26'
+  date: '2026-01-26'
+  url: https://docs.hockeystack.com/release-notes/q1-2026/january-26-2026
+- version: '2026-01-12'
+  date: '2026-01-12'
+  url: https://docs.hockeystack.com/release-notes/q1-2026/january-12-2026
+- version: '2025-12-15'
+  date: '2025-12-15'
+  url: https://docs.hockeystack.com/release-notes/2025/december-15-2025
