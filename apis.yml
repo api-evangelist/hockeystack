@@ -22,9 +22,11 @@ description: >-
   hosted "Omni" MCP server) to forecast pipeline, brief accounts, and recommend
   next-best actions. Data flows bidirectionally through prebuilt connectors to CRMs
   (Salesforce, HubSpot), ad platforms (LinkedIn, Google, Facebook, TikTok), ABM tools,
-  data warehouses (Snowflake, BigQuery), and CDPs (Segment). Its public programmatic
-  surface is the OAuth-secured Omni MCP server rather than a general REST API. Backed
-  by Bessemer Venture Partners.
+  data warehouses (Snowflake, BigQuery), and CDPs (Segment). Its programmatic surface
+  is two-part: the OAuth-secured hosted "Omni" MCP server, and the Revenue Agents
+  REST API v1 (bearer token, 30 operations across agents, conversations, tasks and
+  credits), which is wrapped by a first-party npm MCP server but has no published
+  OpenAPI. Backed by Bessemer Venture Partners.
 url: https://raw.githubusercontent.com/api-evangelist/hockeystack/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
@@ -34,7 +36,7 @@ x-tier: stub
 x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-19'
+modified: '2026-08-13'
 tags:
 - Company
 - Data
@@ -45,7 +47,48 @@ tags:
 - Account Intelligence
 - MCP
 - AI Agents
-apis: []
+apis:
+- name: HockeyStack Revenue Agents API
+  description: >-
+    Version 1 of the HockeyStack Revenue Agents API. Attaches AI agents to companies
+    and deals from the connected CRM, holds conversations with those agents, manages
+    the tasks they generate, and reads the workspace credit ledger that meters it
+    all. Thirty operations across five groups (service, agents, conversations, tasks,
+    credits). Authenticated with a workspace bearer token formatted hsr_live_<hex>.
+    HockeyStack publishes no OpenAPI for this API — it is documented only in the
+    README of its own npm MCP server package, which is where this profile's
+    operation list, routes and semantics were read from.
+  humanURL: https://agents-docs.hockeystack.com/
+  baseURL: https://app.hockeystack.com/api/revenue-agents/v1
+  version: v1
+  tags:
+  - Revenue Intelligence
+  - AI Agents
+  - Account Intelligence
+  - Tasks
+  properties:
+  - type: Documentation
+    url: https://agents-docs.hockeystack.com/
+  - type: MCPServer
+    url: mcp/hockeystack-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/hockeystack-tool-crosswalk.yml
+  - type: DataModel
+    url: data-model/hockeystack-data-model.yml
+  - type: ErrorCatalog
+    url: errors/hockeystack-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/hockeystack-rate-limits.yml
+  - type: Authentication
+    url: authentication/hockeystack-authentication.yml
+  - type: Conventions
+    url: conventions/hockeystack-conventions.yml
+  x-no-openapi: true
+  x-no-openapi-reason: >-
+    No OpenAPI is published. The only document served at an OpenAPI URL on
+    HockeyStack infrastructure (agents-docs.hockeystack.com/api-reference/openapi.json)
+    is an unmodified Mintlify "Plant Store" sample and was rejected under the
+    ownership check — see conformance/hockeystack-conformance.yml rejected_specs.
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -74,8 +117,6 @@ common:
   url: https://security.hockeystack.com/
 - type: MCPServer
   url: mcp/hockeystack-mcp.yml
-- type: WellKnown
-  url: well-known/hockeystack-well-known.yml
 - type: LLMsTxt
   url: llms/hockeystack-llms.txt
 - type: Authentication
@@ -90,8 +131,57 @@ common:
   url: conventions/hockeystack-conventions.yml
 - type: ChangeLog
   url: changelog/hockeystack-changelog.yml
+- type: Packages
+  url: packages/hockeystack-packages.yml
+- type: SDKs
+  url: packages/hockeystack-packages.yml
+- type: ToolCrosswalk
+  url: mcp/hockeystack-tool-crosswalk.yml
+- type: DataModel
+  url: data-model/hockeystack-data-model.yml
+- type: ErrorCatalog
+  url: errors/hockeystack-problem-types.yml
+- type: RateLimits
+  url: rate-limits/hockeystack-rate-limits.yml
+- type: Plans
+  url: plans/hockeystack-plans-pricing.yml
+- type: Lifecycle
+  url: lifecycle/hockeystack-lifecycle.yml
+- type: Webhooks
+  url: asyncapi/hockeystack-webhooks.yml
+- type: Components
+  url: components/hockeystack-components.yml
+- type: Compliance
+  url: security/hockeystack-trust-center.yml
+- type: LLMsTxt
+  url: llms/hockeystack-agents-llms.txt
+- type: GitHubOrganization
+  url: https://github.com/HockeyStack
+- type: Support
+  url: mailto:support@hockeystack.com
+- type: SignUp
+  url: https://www.hockeystack.com/pricing
 x-enrichment:
-  date: '2026-07-19'
-  status: backfilled
+  date: '2026-08-13'
+  status: enriched
+  artifacts_added: 10
   pass: local-v1
-  note: backfilled from .gitignore signal + verified work evidence
+x-coverage:
+  state: covered
+  reason: no-machine-readable-spec
+  detail: >-
+    HockeyStack ships a real 30-operation REST API (Revenue Agents v1) but publishes
+    no OpenAPI for it — the only spec served on its docs host is an unmodified
+    Mintlify "Plant Store" sample, which its own llms.txt advertises under "OpenAPI
+    Specs"; the operation list in this profile was recovered from HockeyStack's
+    first-party npm MCP server instead.
+  evidence:
+  - url: https://agents-docs.hockeystack.com/api-reference/openapi.json
+    status: 200
+  - url: https://agents-docs.hockeystack.com/openapi.json
+    status: 404
+  - url: https://app.hockeystack.com/.well-known/oauth-protected-resource
+    status: 404
+  - url: https://registry.npmjs.org/hockeystack-revenue-agents-mcp
+    status: 200
+  checked: '2026-08-13'
