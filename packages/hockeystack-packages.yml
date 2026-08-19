@@ -1,0 +1,85 @@
+generated: '2026-08-13'
+method: searched
+source: https://registry.npmjs.org/-/v1/search?text=hockeystack
+docs: https://github.com/HockeyStack
+summary: >-
+  HockeyStack publishes client-side JavaScript on npm plus an MCP server that wraps
+  its Revenue Agents REST API. There is no first-party SDK for Python, Ruby, Go,
+  Java, .NET, PHP or Rust — npm is the only registry HockeyStack ships to.
+registries_checked:
+- registry: npm
+  found: 3
+- registry: pypi
+  found: 0
+  note: https://pypi.org/pypi/hockeystack/json returned 404
+- registry: rubygems
+  found: 0
+- registry: crates.io
+  found: 0
+- registry: nuget
+  found: 0
+- registry: maven-central
+  found: 0
+- registry: pkg.go.dev
+  found: 0
+packages:
+- name: hockeystack
+  registry: npm
+  url: https://www.npmjs.com/package/hockeystack
+  repository: https://github.com/HockeyStack/hockeystack-js
+  official: true
+  language: javascript
+  role: website tracking / analytics client
+  version: 1.3.234
+  published: '2026-03-12'
+  maintainers:
+  - bgrgndzz
+  - ardaa627
+  - diasvtumane
+  note: >-
+    First-party — published from the HockeyStack GitHub org by HockeyStack staff.
+    This is the JS snippet library behind HockeyStack's cookieless website tracking,
+    not a client for the Revenue Agents REST API.
+- name: hockeystack-revenue-agents-mcp
+  registry: npm
+  url: https://www.npmjs.com/package/hockeystack-revenue-agents-mcp
+  repository: https://github.com/bgrgndzz/hockeystack-revenue-agents-mcp
+  official: true
+  language: typescript
+  role: MCP server (local stdio) for the Revenue Agents API
+  version: 1.1.0
+  published: '2026-05-22'
+  bin: hockeystack-revenue-agents-mcp
+  install: npx -y hockeystack-revenue-agents-mcp
+  maintainers:
+  - bgrgndzz
+  note: >-
+    Marked official on maintainer identity, not repo location: the sole publisher
+    `bgrgndzz` is also a maintainer of the first-party `hockeystack` package inside
+    the HockeyStack npm org. The GitHub repo sits on that maintainer's personal
+    account rather than the HockeyStack org, so this is first-party-authored but
+    not org-hosted — a consumer cannot verify provenance from the repo URL alone.
+- name: hockeystack-surveys-tool
+  registry: npm
+  url: https://www.npmjs.com/package/hockeystack-surveys-tool
+  repository: https://github.com/HockeyStack/hockeystack-surveys-js
+  official: true
+  language: javascript
+  role: on-site survey widget
+  version: 1.0.10
+  published: '2022-05-01'
+  status: dormant
+  note: >-
+    Last published 2022-05-01 — over four years stale and predates every current
+    HockeyStack product surface. Treat as abandoned.
+decay_signals:
+- signal: >-
+    The only client library for the Revenue Agents API (hockeystack-revenue-agents-mcp,
+    2026-05-22) is newer than the tracking SDK (2026-03-12), so the API-side tooling is
+    the actively maintained one.
+- signal: >-
+    hockeystack-surveys-tool has not shipped since 2022 while the surveys product
+    surface is no longer referenced in current docs.
+cross_links:
+  mcp: mcp/hockeystack-mcp.yml
+  components: components/hockeystack-components.yml

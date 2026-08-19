@@ -1,29 +1,99 @@
-generated: '2026-07-19'
-method: searched
-source: live probes of HockeyStack hosts
+generated: '2026-08-13'
+method: probed
+source: live probes of every HockeyStack host
+current_state: none
+headline: >-
+  REGRESSION. On 2026-07-19 HockeyStack served three valid discovery documents at
+  app.hockeystack.com (openid-configuration, oauth-authorization-server,
+  oauth-protected-resource) describing its hosted Omni MCP server. On 2026-08-13
+  every one of them returns 404 on every host. The captured JSON files in this
+  directory are retained as dated evidence of what was published, not as a claim
+  about what is served today.
 hosts:
 - host: https://app.hockeystack.com
   documents:
   - path: /.well-known/openid-configuration
-    status: 200
+    status: 404
+    previously: 200 on 2026-07-19
     file: hockeystack-openid-configuration.json
+    file_is: historical capture, no longer served
   - path: /.well-known/oauth-authorization-server
-    status: 200
+    status: 404
+    previously: 200 on 2026-07-19
     file: hockeystack-oauth-authorization-server.json
+    file_is: historical capture, no longer served
   - path: /.well-known/oauth-protected-resource
-    status: 200
+    status: 404
+    previously: 200 on 2026-07-19
     file: hockeystack-oauth-protected-resource.json
+    file_is: historical capture, no longer served
+  - path: /.well-known/oauth-protected-resource/api/mcp/omni
+    status: 404
+    note: RFC 9728 path-suffixed form also checked — miss.
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/mcp.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  response_shape: 'Express default: "Cannot GET /.well-known/..." — a true 404, not an SPA shell.'
 - host: https://www.hockeystack.com
   documents:
   - path: /.well-known/security.txt
     status: 404
-  - path: /.well-known/ai-plugin.json
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
     status: 404
   - path: /.well-known/api-catalog
     status: 404
-notes: >-
-  HockeyStack exposes an OAuth 2.0 authorization-server + protected-resource
-  discovery surface backing its hosted MCP server ("HockeyStack Omni"). The
-  protected resource is https://hockeystack.com/api/mcp/omni; the authorization
-  server is https://hockeystack.com. No security.txt / ai-plugin.json / api-catalog
-  published at time of probe.
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/mcp.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  response_shape: >-
+    Webflow returns "Invalid .well-known request" with a 404 status. Note the apex
+    also fronts a Cloudflare bot challenge that answers 403 to a default curl UA —
+    all statuses above were taken with a browser User-Agent to get past it.
+- host: https://docs.hockeystack.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/mcp.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+hosts_not_resolving:
+- host: api.hockeystack.com
+  note: no DNS record
+- host: mcp.hockeystack.com
+  note: no DNS record
+pointer_emitted: false
+pointer_note: >-
+  No WellKnown pointer is wired in apis.yml, and the one that existed has been
+  removed. The rating check asserts the provider SERVES this surface; as of
+  2026-08-13 it serves nothing at any /.well-known/ path on any host. The retained
+  JSON captures document a surface that was taken down.
+checked: '2026-08-13'

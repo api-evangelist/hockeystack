@@ -1,40 +1,142 @@
-generated: '2026-07-19'
+generated: '2026-08-13'
 method: searched
-source: https://app.hockeystack.com/.well-known/oauth-protected-resource
+source: >-
+  hockeystack-revenue-agents-mcp@1.1.0 build/index.js + README (first-party published
+  package) and live response headers from app.hockeystack.com
 summary: >-
-  HockeyStack's public programmatic surface is the hosted "Omni" MCP server rather
-  than a REST API. Cross-cutting semantics below describe how an agent/client
-  authenticates and calls it. No idempotency, pagination, or rate-limit contract is
-  publicly documented for this surface.
+  HockeyStack has two programmatic surfaces with different conventions: the Revenue
+  Agents REST API v1 (bearer token, cursor pagination, async job pattern) and the
+  OAuth-protected hosted Omni MCP server. This document describes the REST API,
+  which is where all observable runtime semantics live. Nothing here is inferred
+  from prose — it is read from the provider's own shipped client.
 authentication:
-  style: oauth2
-  flow: authorizationCode
-  pkce: S256
-  token_placement: Authorization header (Bearer)
-  scopes:
-  - omni:tools
-  dynamic_client_registration: true
+  style: bearer-token
+  header: 'Authorization: Bearer <token>'
+  token_format: hsr_live_<hex>
+  issued_from: HockeyStack workspace settings
+  unauthenticated_operations:
+  - GET /health
   see: authentication/hockeystack-authentication.yml
-transport:
-  protocol: MCP over HTTP
-  resource: https://hockeystack.com/api/mcp/omni
-idempotency:
-  supported: unknown
-  notes: No idempotency-key contract is publicly documented.
+base_url:
+  production: https://app.hockeystack.com/api/revenue-agents/v1
+  overridable_via: HOCKEYSTACK_BASE_URL
+content_negotiation:
+  request_accept: application/json
+  request_content_type: application/json (only when a body is sent)
+  response: application/json
 pagination:
-  style: unknown
-  notes: Not publicly documented for the MCP surface.
-versioning:
-  scheme: unknown
-  notes: >-
-    Product ships dated release notes (see changelog/hockeystack-changelog.yml); no
-    API version identifier is exposed on the MCP surface.
+  style: cursor
+  request_params:
+  - name: cursor
+    type: string
+    description: Opaque cursor from a previous response. Omit for the first page.
+  - name: limit
+    type: integer
+    default: 50
+    max: 200
+    min: 1
+  applies_to:
+  - GET /companies/agents
+  - GET /deals/agents
+  - GET /tasks
+  - GET /credits/operations
+  - conversation and message listings
+async_jobs:
+  pattern: 202-accepted-plus-poll
+  description: >-
+    Long-running work is not held open on the request. Agent initialization and
+    agent message sends return immediately; the caller polls a resource until it
+    reaches a terminal state.
+  cases:
+  - operation: PUT /companies/{id}/agent and PUT /deals/{id}/agent
+    returns: 202
+    poll: GET the same agent resource until status flips initializing → active
+    typical_duration: 3-8 minutes
+  - operation: POST .../conversations/{id}/messages
+    returns: 'job envelope {job_id, status: pending}'
+    poll: GET .../messages/jobs/{jobId}
+    terminal_states:
+    - completed
+    - failed
+    client_default_wait: 300 seconds, polling every 2 seconds
+idempotency:
+  idempotency_key_header: null
+  supported: false
+  detail: >-
+    HockeyStack publishes NO idempotency-key contract. DELETE operations are
+    documented as idempotent ("returns 204 even if the agent did not exist"), but
+    that is ordinary HTTP DELETE semantics, not a replay-safe key mechanism — a
+    retried POST /tasks or POST /messages can duplicate. Recorded as unsupported
+    deliberately; no Idempotency pointer is wired in apis.yml.
+  unsafe_retries:
+  - POST /tasks
+  - POST /companies/{id}/conversations
+  - POST /deals/{id}/conversations
+  - POST .../messages
+soft_delete:
+  detail: >-
+    DELETE /tasks/{id} is a soft delete that hides the task from listings, and is
+    explicitly distinguished in the docs from PATCH status:cancelled, which keeps
+    the task visible. Two different erasure semantics on one resource.
+state_machines:
+  task_status:
+    from: pending
+    to:
+    - completed
+    - dismissed
+    - cancelled
+    conditional_field: dismiss_reason is REQUIRED when status is dismissed
+  agent_status:
+  - initializing
+  - active
 error_envelope:
-  style: unknown
+  style: non-standard
+  rfc9457: false
+  detail: >-
+    Errors surface as an HTTP status plus a JSON or plain-text body; the shipped
+    client stringifies whatever comes back into "HockeyStack API error (<status>):
+    <body>". No problem+json media type, no typed error codes.
+  see: errors/hockeystack-problem-types.yml
+status_codes_in_use:
+- code: 202
+  meaning: async work accepted
+- code: 204
+  meaning: deleted / no content
+- code: 404
+  meaning: agent not initialized for this company or deal
 rate_limiting:
-  signaled: unknown
+  documented: false
+  runtime_signal: >-
+    app.hockeystack.com returns `access-control-expose-headers: Retry-After`, so a
+    Retry-After header is deliberately made readable to browser clients — but no
+    limit values are published and no X-RateLimit-*/RateLimit-* headers were
+    observed on unauthenticated responses.
+  see: rate-limits/hockeystack-rate-limits.yml
+versioning:
+  scheme: path
+  current: v1
+  detail: Version is pinned in the base path (/api/revenue-agents/v1). No version header, no dated versions.
+  see: lifecycle/hockeystack-lifecycle.yml
+dry_run:
+  supported: partial
+  detail: >-
+    The workflow Webhook destination node ships a dry-run mode to test without
+    sending live requests. This is a product-UI affordance, not a REST API
+    parameter — no operation on the Revenue Agents API accepts a dry-run flag.
+  source: https://docs.hockeystack.com/account-intelligence/workflows/nodes/destinations/webhook.md
+request_id_tracing:
+  detail: >-
+    app.hockeystack.com emits an `x-request-id` response header. Not documented as a
+    support-correlation identifier, but present and usable.
+field_expansion:
+  supported: false
+metadata_fields:
+  supported: false
 cross_links:
   authentication: authentication/hockeystack-authentication.yml
   scopes: scopes/hockeystack-scopes.yml
+  errors: errors/hockeystack-problem-types.yml
+  lifecycle: lifecycle/hockeystack-lifecycle.yml
+  rate_limits: rate-limits/hockeystack-rate-limits.yml
   mcp: mcp/hockeystack-mcp.yml
-  changelog: changelog/hockeystack-changelog.yml
+  data_model: data-model/hockeystack-data-model.yml

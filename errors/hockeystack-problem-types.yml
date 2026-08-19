@@ -1,0 +1,90 @@
+generated: '2026-08-13'
+method: derived
+source: hockeystack-revenue-agents-mcp@1.1.0 build/index.js (first-party client error handling)
+format: non-standard
+rfc9457: false
+summary: >-
+  HockeyStack publishes no error reference and no OpenAPI, so there is no error
+  catalog to harvest. What follows is derived from how the provider's own client
+  handles failures, plus the status codes its tool descriptions name explicitly. It
+  is a behavioural description, not a published contract.
+envelope:
+  media_type: application/json (when present)
+  problem_json: false
+  shape: >-
+    Not typed. The first-party client reads the response body, JSON-parses it only
+    when content-type includes application/json, and otherwise keeps it as text —
+    then collapses both into a single string "HockeyStack API error (<status>):
+    <body>". No error code field, no error type URI, no field-level validation
+    detail is surfaced.
+  consequence: >-
+    An agent cannot branch on an error class. It gets a status code and an opaque
+    message, so retry-vs-fail decisions have to be made from the HTTP status alone.
+status_codes:
+- status: 202
+  kind: success
+  meaning: Async work accepted — agent initialization or agent message dispatch.
+  action: Poll the corresponding resource or job until terminal.
+- status: 204
+  kind: success
+  meaning: Resource deleted, no content returned.
+  action: Treat as success. DELETE is idempotent — 204 is returned even when nothing existed.
+- status: 404
+  kind: error
+  meaning: >-
+    Documented explicitly for GET /companies/{id}/agent and GET /deals/{id}/agent —
+    returned when no agent has been initialized for that company or deal.
+  action: Call the PUT init operation first, then poll.
+  remediation_documented: true
+- status: 4xx
+  kind: error
+  meaning: >-
+    Generic client error. Specific codes for auth failure, validation failure,
+    quota exhaustion and rate limiting are NOT published.
+  action: Surface to caller; no typed remediation available.
+  remediation_documented: false
+- status: 5xx
+  kind: error
+  meaning: Generic server error. Not enumerated.
+  action: Retry with backoff — but note no idempotency keys exist, so retrying a POST may duplicate.
+  remediation_documented: false
+job_failure:
+  detail: >-
+    Async message jobs carry their own terminal failure state: a job polled via
+    GET .../messages/jobs/{jobId} reaches status `failed`. This is an
+    application-level failure returned inside a 200 response, not an HTTP error —
+    a client that only checks status codes will read a failed agent run as success.
+  states:
+  - pending
+  - completed
+  - failed
+validation_constraints_observed:
+  note: >-
+    Constraints below are enforced client-side by the published zod schemas. Whether
+    the API enforces the same bounds is not documented.
+  constraints:
+  - field: limit
+    rule: integer 1-200, default 50
+  - field: task_title
+    rule: string 1-500 chars
+  - field: assignee_id
+    rule: string 1-64 chars
+  - field: task_type
+    rule: enum call | email | linkedin
+  - field: priority
+    rule: enum urgent | high | medium | low
+  - field: status (PATCH /tasks)
+    rule: enum completed | dismissed | cancelled
+  - field: dismiss_reason
+    rule: required when status is dismissed, max 2000 chars
+  - field: taskId
+    rule: uuid
+gaps:
+- No published error reference page.
+- No error codes or error type identifiers of any kind.
+- No RFC 9457 problem+json.
+- Rate-limit and quota-exhaustion responses undocumented despite a metered credit model.
+cross_links:
+  conventions: conventions/hockeystack-conventions.yml
+  rate_limits: rate-limits/hockeystack-rate-limits.yml
+  mcp: mcp/hockeystack-mcp.yml

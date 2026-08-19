@@ -1,28 +1,132 @@
-generated: '2026-07-19'
+generated: '2026-08-13'
 method: derived
-source: well-known/ OAuth discovery documents
+source: >-
+  live probes 2026-08-13, well-known/ captures from 2026-07-19, the first-party
+  hockeystack-revenue-agents-mcp package, and the provider's security documentation
+summary: >-
+  HockeyStack's conformance posture moved backwards between rounds. The OAuth
+  discovery documents that earned it RFC 8414 / RFC 9728 / OIDC-discovery credit in
+  July return 404 on every host in August. Its REST API conforms to no
+  cross-cutting API standard — no problem+json, no standard rate-limit headers, no
+  idempotency keys, no published spec of any kind.
 standards:
 - id: oauth2
   conforms: true
-  evidence: RFC 6749 authorization-code flow advertised in authorization-server metadata
+  evidence: >-
+    RFC 6749 authorization-code flow advertised in authorization-server metadata
+    captured 2026-07-19; /api/mcp/oauth/authorize and /token endpoints still respond
+    (302 to login) on 2026-08-13.
+  degraded: true
+  degraded_note: Flow still exists; the metadata describing it no longer does.
 - id: oauth2-pkce
   conforms: true
-  evidence: code_challenge_methods_supported includes S256 (RFC 7636)
+  evidence: code_challenge_methods_supported includes S256 (RFC 7636) in the 2026-07-19 capture
+  degraded: true
 - id: rfc8414-oauth-authorization-server-metadata
-  conforms: true
-  evidence: /.well-known/oauth-authorization-server returns 200 with issuer + endpoints
+  conforms: false
+  previously: true
+  evidence: >-
+    /.well-known/oauth-authorization-server returned 200 on 2026-07-19 and returns
+    404 on app.hockeystack.com, www.hockeystack.com and docs.hockeystack.com on
+    2026-08-13.
+  regression: true
+  checked: '2026-08-13'
 - id: rfc9728-oauth-protected-resource-metadata
-  conforms: true
-  evidence: /.well-known/oauth-protected-resource returns 200 with resource + authorization_servers
+  conforms: false
+  previously: true
+  evidence: >-
+    /.well-known/oauth-protected-resource returned 200 on 2026-07-19 and 404 on
+    2026-08-13, including the path-suffixed form
+    /.well-known/oauth-protected-resource/api/mcp/omni.
+  regression: true
+  checked: '2026-08-13'
 - id: rfc7591-dynamic-client-registration
-  conforms: true
-  evidence: registration_endpoint advertised in discovery metadata
+  conforms: false
+  previously: true
+  evidence: >-
+    registration_endpoint was advertised in the withdrawn metadata; the endpoint
+    itself now 302s to /login rather than accepting a registration request.
+  regression: true
 - id: oidc-discovery
-  conforms: true
-  evidence: /.well-known/openid-configuration returns 200
+  conforms: false
+  previously: true
+  evidence: /.well-known/openid-configuration 200 on 2026-07-19, 404 on 2026-08-13
+  regression: true
 - id: mcp
-  conforms: true
-  evidence: hosted MCP server (HockeyStack Omni) at https://hockeystack.com/api/mcp/omni
+  conforms: partial
+  evidence: >-
+    Two MCP surfaces exist. The stdio server (hockeystack-revenue-agents-mcp@1.1.0,
+    @modelcontextprotocol/sdk) is a conformant local MCP server with 30 tools. The
+    hosted Omni server no longer returns a spec-compliant 401 + WWW-Authenticate
+    challenge to an unauthenticated POST — it 302s to a browser login page, which an
+    MCP client cannot act on.
+  checked: '2026-08-13'
 - id: rfc9457-problem-details
   conforms: false
-  evidence: no OpenAPI / error catalog published to confirm
+  evidence: >-
+    Errors are an HTTP status plus an untyped JSON or text body; no
+    application/problem+json. Confirmed from the first-party client's error handling.
+- id: ratelimit-headers
+  conforms: false
+  evidence: >-
+    No X-RateLimit-* or RateLimit-* headers observed or documented. Retry-After is
+    exposed via CORS allow-list but never documented.
+- id: idempotency-key
+  conforms: false
+  evidence: No Idempotency-Key header contract published; POST operations are not replay-safe.
+- id: openapi
+  conforms: false
+  evidence: >-
+    No OpenAPI published for the Revenue Agents API. The document served at
+    https://agents-docs.hockeystack.com/api-reference/openapi.json is an unmodified
+    Mintlify sample — see rejected_specs below.
+- id: asyncapi
+  conforms: false
+  evidence: Outbound webhooks exist but no AsyncAPI document and no event catalog are published.
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: /.well-known/security.txt returns 404 on every host.
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: No Sunset or Deprecation headers documented or observed; no deprecation policy exists.
+compliance:
+- id: soc2-type2
+  conforms: true
+  evidence: >-
+    "HockeyStack has a SOC 2 Type 2 certification." — provider's own Security and
+    Data Handling documentation.
+  source: https://agents-docs.hockeystack.com/sales-agents/security-and-data.md
+  verified: '2026-08-13'
+- id: gdpr-data-residency
+  conforms: partial
+  evidence: >-
+    All customer data stored in the EU on AWS and MongoDB Atlas; 30-day deletion
+    after termination; PII deletion on verified data-subject request; DPA with
+    contractual no-AI-training commitment. No explicit GDPR certification claim.
+  source: https://agents-docs.hockeystack.com/sales-agents/security-and-data.md
+rejected_specs:
+- url: https://agents-docs.hockeystack.com/api-reference/openapi.json
+  http_status: 200
+  parses_as_openapi: true
+  openapi_version: 3.1.0
+  rejected: true
+  reason: >-
+    Fails the ownership check decisively. info.title is "OpenAPI Plant Store",
+    info.description is "A sample API that uses a plant store as an example to
+    demonstrate features in the OpenAPI specification", servers[] is
+    http://sandbox.mintlify.com, and paths are /plants and /plants/{id}. This is the
+    stock Mintlify starter spec, left deployed when HockeyStack scaffolded its docs
+    site — it describes nothing HockeyStack sells.
+  aggravating_factor: >-
+    HockeyStack's own llms.txt at https://agents-docs.hockeystack.com/llms.txt
+    advertises it under a "## OpenAPI Specs" heading, so any harvester that trusts
+    llms.txt will credit HockeyStack with a plant store API. The docs.json
+    navigation does not reference it, confirming it is orphaned scaffold rather
+    than intended content.
+  checked: '2026-08-13'
+cross_links:
+  well_known: well-known/hockeystack-well-known.yml
+  authentication: authentication/hockeystack-authentication.yml
+  errors: errors/hockeystack-problem-types.yml
+  trust_center: security/hockeystack-trust-center.yml
+  mcp: mcp/hockeystack-mcp.yml

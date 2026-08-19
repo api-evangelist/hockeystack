@@ -1,9 +1,12 @@
-generated: '2026-07-19'
+generated: '2026-08-13'
 method: searched
-source: https://app.hockeystack.com/.well-known/oauth-authorization-server
-docs: https://docs.hockeystack.com/
+source: >-
+  hockeystack-revenue-agents-mcp@1.1.0 README + build/index.js (first-party) and
+  well-known/hockeystack-oauth-authorization-server.json (captured 2026-07-19)
+docs: https://agents-docs.hockeystack.com/
 summary:
   types:
+  - http
   - oauth2
   oauth2_flows:
   - authorizationCode
@@ -11,14 +14,43 @@ summary:
   dynamic_client_registration: true
   bearer_methods:
   - header
+  surfaces: 2
+  note: >-
+    Two independent auth systems for two independent surfaces. The REST API uses a
+    long-lived workspace API token; the hosted MCP server uses OAuth. They do not
+    interoperate — an OAuth token will not call the REST API and an hsr_live_ token
+    will not call the Omni MCP server.
 schemes:
+- name: RevenueAgentsBearerToken
+  type: http
+  scheme: bearer
+  surface: HockeyStack Revenue Agents API v1
+  base_url: https://app.hockeystack.com/api/revenue-agents/v1
+  description: >-
+    Long-lived workspace API token presented as an Authorization: Bearer header.
+    Tokens are formatted hsr_live_<hex> and are issued from HockeyStack workspace
+    settings. GET /health accepts unauthenticated requests; every other operation
+    requires the token. GET /me introspects the token and returns its workspace.
+  token_format: hsr_live_<hex>
+  env_var: HOCKEYSTACK_API_TOKEN
+  introspection_endpoint: GET /me
+  unauthenticated_operations:
+  - GET /health
+  rotation_policy: not published
+  expiry: not published
+  scoping: >-
+    No scope or permission model is published for these tokens — a token appears to
+    carry full workspace access across agents, conversations, tasks and credits.
+  sources:
+  - https://www.npmjs.com/package/hockeystack-revenue-agents-mcp
+  status: current
 - name: OmniOAuth2
   type: oauth2
+  surface: HockeyStack Omni MCP server
   description: >-
-    OAuth 2.0 authorization-code flow (PKCE / S256) protecting the HockeyStack
-    Omni MCP server. Supports refresh tokens and RFC 7591 dynamic client
-    registration. Access tokens are presented as Bearer tokens in the
-    Authorization header against the protected resource
+    OAuth 2.0 authorization-code flow (PKCE / S256) protecting the hosted Omni MCP
+    server. Supports refresh tokens and RFC 7591 dynamic client registration.
+    Access tokens are presented as Bearer tokens against the protected resource
     https://hockeystack.com/api/mcp/omni.
   flows:
   - flow: authorizationCode
@@ -34,9 +66,21 @@ schemes:
   revocation_endpoint: https://hockeystack.com/api/mcp/oauth/revoke
   sources:
   - well-known/hockeystack-oauth-authorization-server.json
+  status: discovery-withdrawn
+  status_detail: >-
+    The endpoints above were read from RFC 8414 metadata served at
+    app.hockeystack.com on 2026-07-19. On 2026-08-13 that metadata document, and
+    every other /.well-known/ path, returns 404 on every HockeyStack host. The
+    /api/mcp/oauth/* endpoints themselves still answer (302 to login), so the
+    server appears to still exist — but an MCP client can no longer DISCOVER it,
+    and an unauthenticated POST to the MCP endpoint returns a session-login
+    redirect rather than the spec-required 401 + WWW-Authenticate challenge.
+    Re-probe before relying on this scheme.
+  rechecked: '2026-08-13'
 notes: >-
-  HockeyStack does not publish a general-purpose REST API with an OpenAPI spec;
-  its programmatic surface is the hosted Omni MCP server, authenticated via this
-  OAuth 2.0 authorization server. Product data integrations are otherwise
-  configured through prebuilt connectors (Salesforce, HubSpot, ad platforms,
-  Snowflake, BigQuery, Segment) inside the app rather than a public API.
+  Corrects the prior round, which recorded HockeyStack as having no REST API. It has
+  one — the Revenue Agents API v1 — with its own bearer-token scheme. What it does
+  not have is a published OpenAPI describing it; the API is documented only in the
+  README of the first-party npm MCP package. Product data integrations remain
+  configured through prebuilt in-app connectors (Salesforce, HubSpot, ad platforms,
+  Snowflake, BigQuery, Segment) rather than through this API.

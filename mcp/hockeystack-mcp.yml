@@ -1,35 +1,217 @@
-generated: '2026-07-19'
+generated: '2026-08-13'
 method: searched
 status: published
-source: https://app.hockeystack.com/.well-known/oauth-protected-resource
-server:
-  name: HockeyStack Omni
+source: https://www.npmjs.com/package/hockeystack-revenue-agents-mcp
+summary: >-
+  HockeyStack ships TWO distinct MCP surfaces: a hosted/remote "Omni" server bound to
+  the app (OAuth, discovered July 2026 via RFC 9728 metadata that has since been
+  withdrawn), and a locally-run stdio server on npm that wraps the Revenue Agents
+  REST API and exposes 30 tools. Only the second one has an enumerable tool list.
+deployment:
+  mode: both
+  endpoint: https://hockeystack.com/api/mcp/omni
+  install: npx -y hockeystack-revenue-agents-mcp
+  package: https://www.npmjs.com/package/hockeystack-revenue-agents-mcp
+  auth: oauth
+  verified: probed
+  checked: '2026-08-13'
+  note: >-
+    mode is `both` because the two surfaces are different products, not two ways to
+    reach one. The remote endpoint is an app-bound agent an OAuth client can call;
+    the stdio package is a REST wrapper a human must install with an API token first.
+servers:
+- name: HockeyStack Omni
+  kind: remote
   transport: http
   url: https://hockeystack.com/api/mcp/omni
   resource: https://hockeystack.com/api/mcp/omni
-  resource_name: HockeyStack Omni
-authorization:
-  type: oauth2
-  authorization_servers:
-  - https://hockeystack.com
-  authorization_endpoint: https://hockeystack.com/api/mcp/oauth/authorize
-  token_endpoint: https://hockeystack.com/api/mcp/oauth/token
-  registration_endpoint: https://hockeystack.com/api/mcp/oauth/register
-  revocation_endpoint: https://hockeystack.com/api/mcp/oauth/revoke
-  grant_types_supported:
-  - authorization_code
-  - refresh_token
-  code_challenge_methods_supported:
-  - S256
-  dynamic_client_registration: true
-  bearer_methods_supported:
-  - header
-  scopes_supported:
+  auth: oauth2
+  scopes:
   - omni:tools
-tools: []
+  tools: []
+  discovery_status: withdrawn
+  probes:
+  - url: https://hockeystack.com/api/mcp/omni
+    method: POST
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+    status: 302
+    result: redirects to www; app host redirects to /login
+    checked: '2026-08-13'
+  - url: https://app.hockeystack.com/api/mcp/omni
+    method: POST
+    status: 302
+    location: /login?redirect=/api/mcp/omni
+    result: >-
+      session-login redirect, NOT an MCP OAuth 401 challenge — an MCP client
+      following spec would not get a WWW-Authenticate challenge here
+    checked: '2026-08-13'
+  note: >-
+    tools[] is intentionally empty. The live tool list requires an authenticated
+    session and was never enumerable anonymously; it is not fabricated. See
+    well-known/hockeystack-well-known.yml — the RFC 8414 / RFC 9728 metadata
+    documents that described this server returned 200 on 2026-07-19 and return 404
+    on every host as of 2026-08-13, so the machine-readable discovery path to this
+    server no longer exists.
+- name: HockeyStack Revenue Agents
+  kind: local-stdio
+  transport: stdio
+  package: hockeystack-revenue-agents-mcp
+  version: 1.1.0
+  published: '2026-05-22'
+  install: npx -y hockeystack-revenue-agents-mcp
+  repository: https://github.com/bgrgndzz/hockeystack-revenue-agents-mcp
+  docs: https://agents-docs.hockeystack.com/
+  auth: api-key
+  auth_detail: >-
+    HOCKEYSTACK_API_TOKEN environment variable, format hsr_live_<hex>, sent as
+    Authorization: Bearer. Issued from HockeyStack workspace settings.
+  backing_api:
+    name: HockeyStack Revenue Agents API
+    version: v1
+    base_url: https://app.hockeystack.com/api/revenue-agents/v1
+    override_env: HOCKEYSTACK_BASE_URL
+  tool_count: 30
+  tools_source: >-
+    Read verbatim from the published package build/index.js (server.tool
+    registrations) — real names, descriptions and backing routes, not inferred.
+  tools:
+  - name: hs_health
+    category: service
+    rest: GET /health
+    auth_required: false
+    description: Liveness probe for the HockeyStack Revenue Agents API. Unauthenticated.
+  - name: hs_me
+    category: service
+    rest: GET /me
+    description: Token introspection. Returns the current API token's workspace and metadata.
+  - name: hs_list_company_agents
+    category: agents
+    rest: GET /companies/agents
+    description: List companies in this workspace with an initialized company agent. Cursor-paginated.
+  - name: hs_init_company_agent
+    category: agents
+    rest: PUT /companies/{companyId}/agent
+    description: >-
+      Initialize the company agent for a company (async). Returns 202. Poll
+      hs_get_company_agent until status flips from initializing to active.
+      Typically completes in 3-8 minutes.
+  - name: hs_get_company_agent
+    category: agents
+    rest: GET /companies/{companyId}/agent
+    description: Get current company agent state. Returns 404 if no agent has been initialized.
+  - name: hs_delete_company_agent
+    category: agents
+    rest: DELETE /companies/{companyId}/agent
+    description: Destroy the company agent. Idempotent — returns 204 even if the agent did not exist.
+  - name: hs_list_deal_agents
+    category: agents
+    rest: GET /deals/agents
+    description: List deals in this workspace with an initialized deal agent. Cursor-paginated.
+  - name: hs_init_deal_agent
+    category: agents
+    rest: PUT /deals/{dealId}/agent
+    description: Initialize the deal agent for a deal (async). Returns 202.
+  - name: hs_get_deal_agent
+    category: agents
+    rest: GET /deals/{dealId}/agent
+    description: Get current deal agent state. Returns 404 if no agent has been initialized.
+  - name: hs_delete_deal_agent
+    category: agents
+    rest: DELETE /deals/{dealId}/agent
+    description: Destroy the deal agent and its conversation history. Idempotent — returns 204.
+  - name: hs_create_deal_conversation
+    category: conversations
+    rest: POST /deals/{dealId}/conversations
+    description: Create a new conversation thread on the deal agent.
+  - name: hs_list_deal_conversations
+    category: conversations
+    rest: GET /deals/{dealId}/conversations
+    description: List conversations on a deal agent.
+  - name: hs_delete_deal_conversation
+    category: conversations
+    rest: DELETE /deals/{dealId}/conversations/{conversationId}
+    description: Delete a deal-agent conversation.
+  - name: hs_list_deal_conversation_messages
+    category: conversations
+    rest: GET /deals/{dealId}/conversations/{conversationId}/messages
+    description: List user + assistant messages in a deal-agent conversation.
+  - name: hs_send_deal_message
+    category: conversations
+    rest: POST /deals/{dealId}/conversations/{conversationId}/messages
+    description: >-
+      Send a message to an existing deal-agent conversation. Runs the agent
+      asynchronously, returns a job, and polls until it completes (default 5 min).
+  - name: hs_get_deal_message_job
+    category: conversations
+    rest: GET /deals/{dealId}/conversations/{conversationId}/messages/jobs/{jobId}
+    description: Poll an async message job. Status is pending, completed, or failed.
+  - name: hs_create_company_conversation
+    category: conversations
+    rest: POST /companies/{companyId}/conversations
+    description: Create a new conversation thread on the company agent.
+  - name: hs_list_company_conversations
+    category: conversations
+    rest: GET /companies/{companyId}/conversations
+    description: List conversations on a company agent.
+  - name: hs_delete_company_conversation
+    category: conversations
+    rest: DELETE /companies/{companyId}/conversations/{conversationId}
+    description: Delete a company-agent conversation.
+  - name: hs_list_company_conversation_messages
+    category: conversations
+    rest: GET /companies/{companyId}/conversations/{conversationId}/messages
+    description: List user + assistant messages in a company-agent conversation.
+  - name: hs_send_company_message
+    category: conversations
+    rest: POST /companies/{companyId}/conversations/{conversationId}/messages
+    description: Send a message to an existing company-agent conversation (async job + poll).
+  - name: hs_get_company_message_job
+    category: conversations
+    rest: GET /companies/{companyId}/conversations/{conversationId}/messages/jobs/{jobId}
+    description: Poll an async company-agent message job.
+  - name: hs_list_tasks
+    category: tasks
+    rest: GET /tasks
+    description: List tasks with optional filters. Cursor-paginated.
+  - name: hs_get_task
+    category: tasks
+    rest: GET /tasks/{taskId}
+    description: Get a single task by ID.
+  - name: hs_create_task
+    category: tasks
+    rest: POST /tasks
+    description: Manually create a task. Most tasks are agent-generated.
+  - name: hs_update_task
+    category: tasks
+    rest: PATCH /tasks/{taskId}
+    description: >-
+      Transition a task to a terminal state. Allowed pending → completed |
+      dismissed | cancelled. dismiss_reason required when status is dismissed.
+  - name: hs_delete_task
+    category: tasks
+    rest: DELETE /tasks/{taskId}
+    description: Soft-delete a task. Distinct from PATCH status:cancelled.
+  - name: hs_credits_balance
+    category: credits
+    rest: GET /credits/balance
+    description: Workspace credit state (monthly usage counter, included bundle, on-demand cap).
+  - name: hs_credits_usage
+    category: credits
+    rest: GET /credits/usage
+    description: Aggregated credit usage over a time window. Default last 30 days.
+  - name: hs_credits_operations
+    category: credits
+    rest: GET /credits/operations
+    description: Paginated raw ledger of credit operations. Default last 30 days.
+cross_links:
+  crosswalk: mcp/hockeystack-tool-crosswalk.yml
+  authentication: authentication/hockeystack-authentication.yml
+  conventions: conventions/hockeystack-conventions.yml
+  packages: packages/hockeystack-packages.yml
+  data_model: data-model/hockeystack-data-model.yml
 notes: >-
-  Official hosted/remote MCP server discovered via RFC 9728 OAuth protected-resource
-  metadata + RFC 8414 authorization-server metadata. The MCP endpoint requires an
-  OAuth bearer token (scope omni:tools) so the live tool list could not be enumerated
-  anonymously; tools[] intentionally left empty rather than fabricated. Connect with an
-  MCP client that supports OAuth authorization-code + PKCE and dynamic client registration.
+  The stdio server is the most complete public description of the HockeyStack
+  Revenue Agents API that exists — HockeyStack publishes no OpenAPI for it (see
+  x-coverage in apis.yml). Everything recorded here comes from the provider's own
+  published package, so operations are real; parameter-level schemas beyond those
+  captured in conventions/ live in the package's zod definitions.

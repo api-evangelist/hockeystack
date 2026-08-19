@@ -1,0 +1,80 @@
+generated: '2026-08-13'
+method: searched
+source: https://docs.hockeystack.com/account-intelligence/workflows/nodes/destinations/webhook.md
+asyncapi_published: false
+summary: >-
+  HockeyStack ships an OUTBOUND webhook surface, but it is a workflow destination
+  rather than an event-subscription API. The customer builds a workflow in the UI
+  and adds a Webhook node that POSTs enriched data to a URL they choose. There is no
+  event catalog, no subscription endpoint, no event type registry, and no AsyncAPI
+  document — so there is nothing to fetch and nothing to model as channels.
+surface_type: workflow-destination
+subscription_api: false
+event_catalog_published: false
+webhooks:
+- name: Workflow Webhook node
+  kind: workflow-destination
+  direction: outbound
+  url: https://docs.hockeystack.com/account-intelligence/workflows/nodes/destinations/webhook.md
+  status: current
+  description: >-
+    Sends enriched company and contact data from an Account Intelligence workflow to
+    any external HTTP endpoint. Payloads are structured by company with nested
+    contacts, and include workflow metadata for traceability.
+  payload_shape:
+    documented: partial
+    detail: >-
+      Described in prose as "structured by company with nested contacts, includes
+      workflow metadata". No schema, no example payload, no field list is published.
+  configuration:
+  - field: URL
+    description: The destination endpoint the payload is sent to.
+  features:
+  - validation
+  - logging
+  - dry-run mode (test without sending live requests)
+  trigger: workflow execution
+  delivery_guarantees: not documented
+  retry_policy: not documented
+  signature_verification: not documented
+  auth_to_receiver: >-
+    Custom headers are supported, so a receiver can be authenticated with an
+    Authorization header the customer sets — but HockeyStack does not sign payloads.
+- name: View alert webhook
+  kind: scheduled-alert
+  direction: outbound
+  url: https://docs.hockeystack.com/marketing-intelligence/send-view-updates-to-webhooks.md
+  status: sunset
+  status_detail: New activations disabled as of 2025-12-25; a custom feature not enabled by default.
+  description: Sends hourly updates from a saved View to a custom webhook URL.
+  cadence: hourly
+  configuration:
+  - field: Webhook Name
+    description: A title for the webhook, defined by the customer.
+  - field: Webhook URL
+    description: Destination URL, http:// or https://
+  - field: Headers
+    description: >-
+      Content-Type is included by default; additional headers such as Authorization
+      can be added for receivers that require them.
+  sibling_channels:
+  - Slack
+  signature_verification: not documented
+inbound_events:
+  supported: false
+  note: >-
+    No inbound event ingestion API is published. Event data reaches HockeyStack
+    through the JS tracking snippet, prebuilt connectors, or Zapier — not through a
+    documented events endpoint.
+  related:
+  - https://docs.hockeystack.com/marketing-intelligence/report-examples-and-insights/integration-and-data-ingestion/can-i-use-zapier-for-integrations-with-hockeystack.md
+gaps:
+- No AsyncAPI document.
+- No event type catalog — an integrator cannot enumerate what may arrive.
+- No payload schema or example payload for either webhook.
+- No signing/verification scheme, so receivers cannot authenticate HockeyStack as the sender.
+- No documented retry or delivery guarantee.
+cross_links:
+  conventions: conventions/hockeystack-conventions.yml
+  lifecycle: lifecycle/hockeystack-lifecycle.yml
+checked: '2026-08-13'

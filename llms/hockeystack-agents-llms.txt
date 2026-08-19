@@ -1,0 +1,23 @@
+# HockeyStack Revenue Agents
+
+## Docs
+
+- [Prospecting Agent Setup Guide](https://agents-docs.hockeystack.com/sales-agents/configuration.md): This guide walks you through setting up the Prospecting Agent from scratch. Complete the steps in order, as some steps depend on earlier configuration.
+- [Users and Roles](https://agents-docs.hockeystack.com/sales-agents/configuration/users-and-roles.md): Manage team members, access levels, custom user roles, and reporting hierarchies in your workspace.
+- [Sales Views](https://agents-docs.hockeystack.com/sales-agents/sales-views.md): Sales views are filtered, saved lists of companies that power many features across Sales Agents — from scoring and stakeholder discovery to AI research and CRM sync.
+- [Personas](https://agents-docs.hockeystack.com/sales-agents/configuration/personas.md): Personas define the buyer profiles your team targets within prospect organizations. When you configure a persona, you're telling the AI exactly who matters a...
+- [Products](https://agents-docs.hockeystack.com/sales-agents/products.md): Products represent what your team is selling. Each prospecting motion requires a product to be associated with it, giving the AI context about what to positi...
+- [AI Properties](https://agents-docs.hockeystack.com/sales-agents/ai-properties.md): AI Properties are custom research signals that the AI evaluates for each company in your pipeline. You define the question — "Has this company recently raise...
+- [Stakeholder Discovery](https://agents-docs.hockeystack.com/sales-agents/stakeholder-discovery.md): Stakeholder Discovery automatically identifies and maps key contacts at your target accounts based on your configured personas.
+- [Salesforce iFrame](https://agents-docs.hockeystack.com/sales-agents/salesforce-i-frame.md)
+- [Deals](https://agents-docs.hockeystack.com/sales-agents/deals.md): The Deals page provides a filterable, searchable list of all deals in your pipeline. From here you can drill into individual deals to view their journey, man...
+- [Companies](https://agents-docs.hockeystack.com/sales-agents/companies.md): The Companies page provides a filterable, sortable view of all accounts in your system. Use it to browse companies, assess engagement, review scoring.
+- [Signals](https://agents-docs.hockeystack.com/sales-agents/signals.md): The Signals tab on a company's detail page gives you a data-driven view of how engaged an account is, how strong their intent signals are, and what specific si...
+- [People](https://agents-docs.hockeystack.com/sales-agents/people.md): The People tab on a company's detail page shows all contacts discovered and tracked at that account. You can filter by department, seniority, persona match, ...
+- [Write effective AI property instructions](https://agents-docs.hockeystack.com/sales-agents/guides/write-effective-ai-properties.md): Create AI property instructions that produce accurate, discriminating research signals across your pipeline.
+- [AI property examples library](https://agents-docs.hockeystack.com/sales-agents/guides/ai-property-examples.md): Ready-to-use AI property configurations organized by category. Copy the name, instructions, and output type directly into the AI Agent Builder.
+- [Security and Data Handling](https://agents-docs.hockeystack.com/sales-agents/security-and-data.md)
+
+## OpenAPI Specs
+
+- [openapi](https://agents-docs.hockeystack.com/api-reference/openapi.json)

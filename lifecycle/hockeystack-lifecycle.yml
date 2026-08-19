@@ -1,0 +1,98 @@
+generated: '2026-08-13'
+method: searched
+source: https://docs.hockeystack.com/release-notes + live probes
+summary: >-
+  HockeyStack versions its API in the URL path (v1) and ships dated product release
+  notes, but publishes no deprecation policy, no SLA, and no working status page.
+  The one dated sunset it has announced was communicated in a docs page, not through
+  any lifecycle channel an integrator could subscribe to.
+versioning:
+  scheme: path
+  current_version: v1
+  example: https://app.hockeystack.com/api/revenue-agents/v1
+  version_header: null
+  date_versioning: false
+  policy_published: false
+  note: >-
+    v1 is the only version ever published. No statement exists about how a v2 would
+    be introduced or how long v1 would be supported alongside it.
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  policy_note: >-
+    No deprecation policy page exists. No Sunset or Deprecation response headers are
+    documented or observed. Consequently NO `Deprecation` pointer is wired in
+    apis.yml — a single dated feature sunset is not a policy, and treating it as one
+    would credit HockeyStack with a commitment it has not made.
+  announced_sunsets:
+  - feature: Send View updates to Webhooks
+    announcement: New activations of this feature will be disabled as of December 25, 2025.
+    effective_date: '2025-12-25'
+    scope: new activations only; existing activations not addressed
+    source: https://docs.hockeystack.com/marketing-intelligence/send-view-updates-to-webhooks.md
+    channel: docs page banner
+    note: >-
+      Also flagged in the docs as "a custom feature that is not enabled by default".
+      This is the only dated end-of-life announcement found anywhere on the surface.
+release_notes:
+  published: true
+  url: https://docs.hockeystack.com/release-notes
+  scheme: dated
+  cadence: roughly biweekly through 2025, quarterly-grouped from 2026
+  latest_entry: '2026-04-21'
+  staleness_days_at_check: 114
+  staleness_note: >-
+    The most recent dated release note is 2026-04-21 — nearly four months before
+    this check on 2026-08-13 — even though the Revenue Agents API tooling shipped
+    2026-05-22 and the docs repo was pushed 2026-08-11. Product is clearly still
+    moving; the public changelog is not tracking it.
+  see: changelog/hockeystack-changelog.yml
+status_page:
+  published: false
+  subdomain_exists: true
+  url: https://status.hockeystack.com/
+  provider: Cronitor
+  http_status: 200
+  working: false
+  detail: >-
+    status.hockeystack.com resolves (CNAME cname.cronitorstatus.com) and answers
+    200, but the page body is a Cronitor error payload: "Not found - please check
+    your custom domain or subdomain configuration." The status page is provisioned
+    and MISCONFIGURED — a soft-200 that would read as a live status page to any
+    checker that only looks at the status code.
+  pointer_emitted: false
+  pointer_note: >-
+    NO `StatusPage` pointer is wired in apis.yml. The subdomain exists but serves no
+    status information, and crediting it would be crediting a broken redirect.
+  checked: '2026-08-13'
+sla:
+  published: false
+  uptime_target: null
+  support_response_target: null
+support:
+  channel: email
+  contact: support@hockeystack.com
+  source: https://agents-docs.hockeystack.com/ (Mintlify navbar Support link)
+incident_process:
+  documented: true
+  detail: >-
+    An incident response process is described in the security docs: affected
+    customers are notified per contractual commitments and applicable law, and
+    security event data is retained for 1 year for forensics. Contractual, not a
+    public status feed.
+  source: https://agents-docs.hockeystack.com/sales-agents/security-and-data.md
+data_lifecycle:
+  retention_during_contract: lifetime of engagement
+  deletion_after_termination: within 30 days
+  early_deletion: available on verified request, confirmed in writing
+  poc_purge: same 30-day window
+  source: https://agents-docs.hockeystack.com/sales-agents/security-and-data.md
+deprecated_operations: []
+deprecated_operations_note: No OpenAPI exists, so no operation-level deprecation flags could be derived.
+cross_links:
+  changelog: changelog/hockeystack-changelog.yml
+  conventions: conventions/hockeystack-conventions.yml
+  trust_center: security/hockeystack-trust-center.yml
+checked: '2026-08-13'

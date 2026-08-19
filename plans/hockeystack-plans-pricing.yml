@@ -1,0 +1,57 @@
+generated: '2026-08-13'
+method: searched
+source: https://www.hockeystack.com/pricing
+plan_count: 0
+summary: >-
+  HockeyStack publishes no prices and no named tiers. The /pricing page is a
+  demo-request form — first name, last name, email, "how did you hear about us",
+  "what do you want to get out of the call" — wrapped in customer logos and case
+  studies. There is no self-serve signup, no trial, and no public price for any
+  edition. Every commercial term is set in a sales conversation.
+plans: []
+pricing_page:
+  url: https://www.hockeystack.com/pricing
+  http_status: 200
+  checked: '2026-08-13'
+  headline: Smarter Spend Starts Here
+  what_it_shows:
+  - A "Get a Demo" / contact form as the only call to action
+  - 'A generic "Every plan includes:" list, with no plans enumerated'
+  - Customer logos and case studies
+  included_in_every_plan:
+  - Seamless integrations with your GTM tools and CRM
+  - Hands-on support from our success team
+  - Custom setups for complex data environments
+  - Real-time ROI tracking and performance reporting
+  note: >-
+    The phrase "Every plan includes" implies plans exist, but none are named, priced
+    or differentiated anywhere on the public site.
+commercial_model:
+  type: enterprise-sales
+  self_serve: false
+  free_tier: false
+  trial_published: false
+  currency: not published
+  billing_period: not published
+metering:
+  model: credits
+  detail: >-
+    Although no price is public, the API exposes the shape of the metering: GET
+    /credits/balance returns a monthly usage counter, an INCLUDED BUNDLE and an
+    ON-DEMAND CAP. So the commercial structure is a per-workspace monthly credit
+    allowance with paid overage above it, governed by a cap. The unit price of a
+    credit and the size of the included bundle are not published.
+  observable_via:
+  - GET /credits/balance
+  - GET /credits/usage
+  - GET /credits/operations
+  source: mcp/hockeystack-mcp.yml
+  see: rate-limits/hockeystack-rate-limits.yml
+api_access_pricing:
+  detail: >-
+    Whether the Revenue Agents API and the Omni MCP server are included in a base
+    subscription or sold as an add-on is not stated anywhere public.
+  published: false
+cross_links:
+  rate_limits: rate-limits/hockeystack-rate-limits.yml
+  mcp: mcp/hockeystack-mcp.yml

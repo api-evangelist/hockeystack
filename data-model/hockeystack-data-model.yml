@@ -1,0 +1,234 @@
+generated: '2026-08-13'
+method: derived
+source: mcp/hockeystack-tool-crosswalk.yml (routes read from the first-party MCP client)
+summary: >-
+  Entity graph for the HockeyStack Revenue Agents API v1, derived from its route
+  hierarchy and the request schemas the first-party client enforces. There is no
+  OpenAPI and no object reference page, so this is derived from path nesting and
+  parameter names — response field lists are NOT included because no response body
+  is published anywhere and inventing one would be fabrication.
+derivation_basis:
+- Path nesting establishes ownership (/deals/{dealId}/conversations/{conversationId}/messages).
+- Client-side zod schemas establish parameter names, types and enums.
+- Tool descriptions establish state machines and cardinality.
+confidence: medium
+confidence_note: >-
+  High confidence on entities, relationships and identifiers; no confidence claimed
+  on attribute completeness, since only request-side fields are observable.
+entities:
+- name: workspace
+  description: >-
+    The tenant. Implicit — never addressed by a path, but every token is scoped to
+    exactly one, and GET /me resolves the caller's workspace.
+  identified_by: not exposed
+  operations:
+  - GET /me
+- name: company
+  description: >-
+    An account in the customer's GTM data. Not created through this API — companies
+    originate in the connected CRM; the API only attaches agents to them.
+  identifier: companyId
+  identifier_type: string
+  operations:
+  - GET /companies/agents
+- name: deal
+  description: >-
+    An opportunity in the customer's GTM data. Like company, sourced from the CRM
+    rather than created here.
+  identifier: dealId
+  identifier_type: string
+  operations:
+  - GET /deals/agents
+- name: agent
+  description: >-
+    An AI agent instance bound 1:1 to a company or a deal. Created asynchronously
+    via PUT, destroyed via DELETE. Two variants sharing one shape.
+  variants:
+  - company_agent
+  - deal_agent
+  identified_by: parent (companyId or dealId) — no independent agent id
+  states:
+  - initializing
+  - active
+  lifecycle: PUT to initialize (202, 3-8 min), GET to poll, DELETE to destroy (204, idempotent)
+  operations:
+  - PUT /companies/{companyId}/agent
+  - GET /companies/{companyId}/agent
+  - DELETE /companies/{companyId}/agent
+  - PUT /deals/{dealId}/agent
+  - GET /deals/{dealId}/agent
+  - DELETE /deals/{dealId}/agent
+- name: conversation
+  description: A message thread on an agent. Many conversations per agent.
+  identifier: conversationId
+  operations:
+  - POST /companies/{companyId}/conversations
+  - GET /companies/{companyId}/conversations
+  - DELETE /companies/{companyId}/conversations/{conversationId}
+  - POST /deals/{dealId}/conversations
+  - GET /deals/{dealId}/conversations
+  - DELETE /deals/{dealId}/conversations/{conversationId}
+  note: Deleting the parent agent destroys its conversation history.
+- name: message
+  description: A user or assistant turn within a conversation.
+  roles:
+  - user
+  - assistant
+  operations:
+  - GET .../conversations/{conversationId}/messages
+  - POST .../conversations/{conversationId}/messages
+  note: >-
+    Creating a message does not return the message — it returns a job. The assistant
+    turn only materializes when that job completes.
+- name: message_job
+  description: >-
+    The async execution of an agent run triggered by sending a message. A
+    first-class polled resource, not an envelope.
+  identifier: job_id
+  states:
+  - pending
+  - completed
+  - failed
+  carries: result (present when completed)
+  operations:
+  - GET .../conversations/{conversationId}/messages/jobs/{jobId}
+- name: task
+  description: >-
+    A recommended next action. Mostly agent-generated; can be created manually.
+    The only top-level entity in the API with full CRUD.
+  identifier: taskId
+  identifier_type: uuid
+  attributes:
+  - name: task_type
+    type: enum
+    values:
+    - call
+    - email
+    - linkedin
+  - name: task_title
+    type: string
+    constraint: 1-500 chars
+  - name: assignee_id
+    type: string
+    constraint: 1-64 chars
+  - name: priority
+    type: enum
+    values:
+    - urgent
+    - high
+    - medium
+    - low
+  - name: status
+    type: enum
+    values:
+    - pending
+    - completed
+    - dismissed
+    - cancelled
+  - name: dismiss_reason
+    type: string
+    constraint: required when status is dismissed, max 2000 chars
+  - name: targets
+    type: object
+    note: At least one of contact, deal_id, company_id, meeting_id is required.
+  - name: draft
+    type: object
+    note: talking_points[] for call tasks; subject + body for email tasks.
+  operations:
+  - GET /tasks
+  - POST /tasks
+  - GET /tasks/{taskId}
+  - PATCH /tasks/{taskId}
+  - DELETE /tasks/{taskId}
+- name: credit_balance
+  description: Workspace credit state — monthly usage counter, included bundle, on-demand cap.
+  operations:
+  - GET /credits/balance
+- name: credit_operation
+  description: A single metered event in the credit ledger.
+  operations:
+  - GET /credits/operations
+  - GET /credits/usage
+- name: meeting
+  description: >-
+    Referenced only as a task target (meeting_id). No operations expose it — it is a
+    foreign identifier from the connected conversation-intelligence source.
+  identifier: meeting_id
+  addressable: false
+- name: contact
+  description: >-
+    A person at a company. Referenced as a task target via a contact object. Not
+    addressable through this API.
+  addressable: false
+relationships:
+- from: workspace
+  to: company
+  type: has_many
+- from: workspace
+  to: deal
+  type: has_many
+- from: workspace
+  to: task
+  type: has_many
+- from: workspace
+  to: credit_balance
+  type: has_one
+- from: company
+  to: agent
+  type: has_one
+  via: path nesting /companies/{companyId}/agent
+- from: deal
+  to: agent
+  type: has_one
+  via: path nesting /deals/{dealId}/agent
+- from: agent
+  to: conversation
+  type: has_many
+  via: path nesting
+- from: conversation
+  to: message
+  type: has_many
+  via: path nesting
+- from: message
+  to: message_job
+  type: has_one
+  via: job_id returned from POST messages
+- from: task
+  to: company
+  type: belongs_to
+  via: targets.company_id
+  optional: true
+- from: task
+  to: deal
+  type: belongs_to
+  via: targets.deal_id
+  optional: true
+- from: task
+  to: contact
+  type: belongs_to
+  via: targets.contact
+  optional: true
+- from: task
+  to: meeting
+  type: belongs_to
+  via: targets.meeting_id
+  optional: true
+- from: credit_balance
+  to: credit_operation
+  type: has_many
+id_conventions:
+  taskId: uuid
+  companyId: opaque string, max length not published
+  dealId: opaque string, max length not published
+  conversationId: opaque string
+  job_id: opaque string
+  prefixed_ids: false
+  note: No id-prefix scheme (unlike e.g. Stripe). Only taskId has a stated format.
+gaps:
+- No response schemas published for any entity.
+- No object reference page.
+- company and deal cannot be listed in full — only those that already have an agent.
+cross_links:
+  crosswalk: mcp/hockeystack-tool-crosswalk.yml
+  conventions: conventions/hockeystack-conventions.yml
+  mcp: mcp/hockeystack-mcp.yml

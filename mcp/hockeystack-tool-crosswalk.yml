@@ -1,0 +1,229 @@
+generated: '2026-08-13'
+method: derived
+source: mcp/hockeystack-mcp.yml (tools read from the published hockeystack-revenue-agents-mcp build)
+summary: >-
+  Binds every HockeyStack MCP tool to the REST operation it calls. UNUSUAL SHAPE:
+  the `rest` column carries METHOD + path rather than an OpenAPI operationId,
+  because HockeyStack publishes no OpenAPI for the Revenue Agents API — there are
+  no operationIds in existence to bind to. The bindings themselves are high
+  confidence: they were read out of the provider's own shipped client code, not
+  guessed from tool names.
+surfaces:
+  openapi:
+    published: false
+    note: >-
+      No OpenAPI exists for this API. The only document served at an OpenAPI URL on
+      HockeyStack infrastructure is an unmodified Mintlify sample — see
+      rejected_specs in apis.yml x-coverage and conformance/.
+  rest:
+    base_url: https://app.hockeystack.com/api/revenue-agents/v1
+    gated: true
+    note: Requires an hsr_live_<hex> bearer token; unauthenticated probes 302 to /login.
+  mcp_stdio:
+    package: hockeystack-revenue-agents-mcp
+    gated: false
+    note: Package is public on npm; running it requires a token.
+  mcp_remote:
+    url: https://hockeystack.com/api/mcp/omni
+    gated: true
+    note: OAuth-protected; tool list not enumerable, so it contributes no crosswalk rows.
+  graphql:
+    published: false
+coverage:
+  mcp_tools: 30
+  mapped: 30
+  mcp_only: 0
+  rest_only: 0
+  note: >-
+    1:1. The stdio server is a thin wrapper — every tool is exactly one REST call,
+    with the single exception noted on hs_send_*_message, which composes a POST with
+    repeated GETs on the job resource.
+crosswalk:
+- tool: hs_health
+  category: service
+  rest:
+  - GET /health
+  binding: direct
+  confidence: high
+- tool: hs_me
+  category: service
+  rest:
+  - GET /me
+  binding: direct
+  confidence: high
+- tool: hs_list_company_agents
+  category: agents
+  rest:
+  - GET /companies/agents
+  binding: direct
+  confidence: high
+- tool: hs_init_company_agent
+  category: agents
+  rest:
+  - PUT /companies/{companyId}/agent
+  binding: direct
+  confidence: high
+  note: Async — returns 202, caller polls hs_get_company_agent.
+- tool: hs_get_company_agent
+  category: agents
+  rest:
+  - GET /companies/{companyId}/agent
+  binding: direct
+  confidence: high
+- tool: hs_delete_company_agent
+  category: agents
+  rest:
+  - DELETE /companies/{companyId}/agent
+  binding: direct
+  confidence: high
+- tool: hs_list_deal_agents
+  category: agents
+  rest:
+  - GET /deals/agents
+  binding: direct
+  confidence: high
+- tool: hs_init_deal_agent
+  category: agents
+  rest:
+  - PUT /deals/{dealId}/agent
+  binding: direct
+  confidence: high
+- tool: hs_get_deal_agent
+  category: agents
+  rest:
+  - GET /deals/{dealId}/agent
+  binding: direct
+  confidence: high
+- tool: hs_delete_deal_agent
+  category: agents
+  rest:
+  - DELETE /deals/{dealId}/agent
+  binding: direct
+  confidence: high
+- tool: hs_create_deal_conversation
+  category: conversations
+  rest:
+  - POST /deals/{dealId}/conversations
+  binding: direct
+  confidence: high
+- tool: hs_list_deal_conversations
+  category: conversations
+  rest:
+  - GET /deals/{dealId}/conversations
+  binding: direct
+  confidence: high
+- tool: hs_delete_deal_conversation
+  category: conversations
+  rest:
+  - DELETE /deals/{dealId}/conversations/{conversationId}
+  binding: direct
+  confidence: high
+- tool: hs_list_deal_conversation_messages
+  category: conversations
+  rest:
+  - GET /deals/{dealId}/conversations/{conversationId}/messages
+  binding: direct
+  confidence: high
+- tool: hs_send_deal_message
+  category: conversations
+  rest:
+  - POST /deals/{dealId}/conversations/{conversationId}/messages
+  - GET /deals/{dealId}/conversations/{conversationId}/messages/jobs/{jobId}
+  binding: composite
+  confidence: high
+  note: >-
+    Posts the message, then polls the returned job every 2s until terminal or
+    wait_seconds elapses (default 300).
+- tool: hs_get_deal_message_job
+  category: conversations
+  rest:
+  - GET /deals/{dealId}/conversations/{conversationId}/messages/jobs/{jobId}
+  binding: direct
+  confidence: high
+- tool: hs_create_company_conversation
+  category: conversations
+  rest:
+  - POST /companies/{companyId}/conversations
+  binding: direct
+  confidence: high
+- tool: hs_list_company_conversations
+  category: conversations
+  rest:
+  - GET /companies/{companyId}/conversations
+  binding: direct
+  confidence: high
+- tool: hs_delete_company_conversation
+  category: conversations
+  rest:
+  - DELETE /companies/{companyId}/conversations/{conversationId}
+  binding: direct
+  confidence: high
+- tool: hs_list_company_conversation_messages
+  category: conversations
+  rest:
+  - GET /companies/{companyId}/conversations/{conversationId}/messages
+  binding: direct
+  confidence: high
+- tool: hs_send_company_message
+  category: conversations
+  rest:
+  - POST /companies/{companyId}/conversations/{conversationId}/messages
+  - GET /companies/{companyId}/conversations/{conversationId}/messages/jobs/{jobId}
+  binding: composite
+  confidence: high
+- tool: hs_get_company_message_job
+  category: conversations
+  rest:
+  - GET /companies/{companyId}/conversations/{conversationId}/messages/jobs/{jobId}
+  binding: direct
+  confidence: high
+- tool: hs_list_tasks
+  category: tasks
+  rest:
+  - GET /tasks
+  binding: direct
+  confidence: high
+- tool: hs_get_task
+  category: tasks
+  rest:
+  - GET /tasks/{taskId}
+  binding: direct
+  confidence: high
+- tool: hs_create_task
+  category: tasks
+  rest:
+  - POST /tasks
+  binding: direct
+  confidence: high
+- tool: hs_update_task
+  category: tasks
+  rest:
+  - PATCH /tasks/{taskId}
+  binding: direct
+  confidence: high
+- tool: hs_delete_task
+  category: tasks
+  rest:
+  - DELETE /tasks/{taskId}
+  binding: direct
+  confidence: high
+- tool: hs_credits_balance
+  category: credits
+  rest:
+  - GET /credits/balance
+  binding: direct
+  confidence: high
+- tool: hs_credits_usage
+  category: credits
+  rest:
+  - GET /credits/usage
+  binding: direct
+  confidence: high
+- tool: hs_credits_operations
+  category: credits
+  rest:
+  - GET /credits/operations
+  binding: direct
+  confidence: high
+mcp_only: []
+rest_only: []

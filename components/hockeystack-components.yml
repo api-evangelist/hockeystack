@@ -1,0 +1,73 @@
+generated: '2026-08-13'
+method: searched
+source: https://docs.hockeystack.com/technical-details/tracking + npm registry
+summary: >-
+  HockeyStack's client-side surface is a data-collection snippet, not a UI component
+  library. There are no embeddable widgets, element libraries or prebuilt dashboards
+  for developers to mount — with one exception, a Salesforce iFrame that embeds
+  HockeyStack views inside the CRM. Recorded here because the tracking snippet is
+  the single most widely deployed piece of HockeyStack code and it is distributed as
+  a browser artifact rather than an SDK.
+families:
+- family: Website tracking
+  kind: script-snippet
+  description: >-
+    Cookieless JS snippet that captures on-site behaviour and fingerprints visitors
+    without cookies, feeding the buyer-journey and attribution models. HockeyStack
+    positions it explicitly against CDP-sourced data.
+  package: hockeystack
+  registry: npm
+  version: 1.3.234
+  published: '2026-03-12'
+  repository: https://github.com/HockeyStack/hockeystack-js
+  docs:
+  - https://docs.hockeystack.com/technical-details/tracking/why-website-tracking-via-hockeystacks-js-snippet-outperforms-cdp-data.md
+  distribution: script tag installed on the customer's site
+  pinned: unknown
+  pinned_note: >-
+    The npm package is versioned, but the docs install path is a snippet rather than
+    a pinned CDN URL, so a site owner cannot tell from the installed tag which
+    build they are running.
+- family: Piggyback scripts
+  kind: script-snippet
+  description: >-
+    HockeyStack detects a number of third-party embeds already on the page and
+    loads the corresponding helper script automatically, extending capture without
+    additional installation.
+  docs:
+  - https://docs.hockeystack.com/technical-details/tracking/piggyback-scripts.md
+  note: >-
+    Notable behaviourally: the snippet loads additional third-party helper code on
+    the customer's page based on what it detects there. Worth flagging in any CSP
+    or vendor-review conversation.
+- family: Salesforce iFrame
+  kind: embedded-surface
+  description: >-
+    Embeds HockeyStack Revenue Agents views inside Salesforce so sellers work the
+    account and deal intelligence without leaving the CRM.
+  docs:
+  - https://agents-docs.hockeystack.com/sales-agents/salesforce-i-frame.md
+  host_application: Salesforce
+  note: >-
+    Corroborated by the app's own CSP, which frame-ancestor allow-lists
+    *.salesforce.com, *.force.com and *.lightning.force.com.
+  evidence: 'content-security-policy header on app.hockeystack.com, observed 2026-08-13'
+- family: Surveys widget
+  kind: embeddable-widget
+  status: dormant
+  package: hockeystack-surveys-tool
+  registry: npm
+  version: 1.0.10
+  published: '2022-05-01'
+  repository: https://github.com/HockeyStack/hockeystack-surveys-js
+  note: >-
+    On-site survey widget, last published 2022. No current documentation references
+    it. Listed for completeness; treat as abandoned.
+not_offered:
+- Hosted/prebuilt checkout or payment elements
+- Embeddable analytics dashboards for third-party apps
+- Web component / custom element library
+- Design system or UI kit
+cross_links:
+  packages: packages/hockeystack-packages.yml
+checked: '2026-08-13'

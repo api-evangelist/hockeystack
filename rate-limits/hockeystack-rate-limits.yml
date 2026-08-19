@@ -1,0 +1,64 @@
+generated: '2026-08-13'
+method: probed
+source: live response headers from https://app.hockeystack.com + first-party client source
+docs: null
+limit_count: 0
+summary: >-
+  HockeyStack publishes no rate limits for the Revenue Agents API — no numbers, no
+  windows, no scopes, no documented headers, and no documented 429 behaviour. One
+  runtime signal is observable: the app tier deliberately exposes Retry-After to
+  browser clients, which implies the platform does throttle and does tell callers
+  when to come back. The values remain unpublished.
+limits: []
+observed_headers:
+- header: Retry-After
+  observed_via: 'access-control-expose-headers: Retry-After'
+  host: app.hockeystack.com
+  status_observed: 302
+  interpretation: >-
+    The API explicitly allow-lists Retry-After for cross-origin reads, which is only
+    worth doing if the server actually sets it on throttled responses. Strong
+    evidence of throttling; not evidence of any particular limit.
+  checked: '2026-08-13'
+- header: x-request-id
+  host: app.hockeystack.com
+  interpretation: Per-request correlation id, useful when reporting a throttle to support.
+headers_absent:
+- X-RateLimit-Limit
+- X-RateLimit-Remaining
+- X-RateLimit-Reset
+- RateLimit
+- RateLimit-Policy
+absent_note: >-
+  None of the standard limit-advertising headers appeared on any unauthenticated
+  response. They may be present on authenticated responses; that could not be
+  established without a workspace token.
+exhaustion_status_code: not documented
+metering:
+  model: credits
+  detail: >-
+    The commercial throttle on this API is a credit system, not a request-rate
+    limit. GET /credits/balance returns a monthly usage counter, an included bundle
+    and an on-demand cap; GET /credits/usage aggregates a window; GET
+    /credits/operations is the raw ledger. An agent can therefore read its own
+    remaining budget before spending — which is a genuinely better signal than a
+    rate-limit header — but the API does not document what happens at the cap.
+  operations:
+  - GET /credits/balance
+  - GET /credits/usage
+  - GET /credits/operations
+  see: plans/hockeystack-plans-pricing.yml
+client_side_pacing:
+  detail: >-
+    The first-party MCP client polls async message jobs every 2 seconds for up to
+    300 seconds by default. That is the only pacing guidance HockeyStack ships, and
+    it is a client default rather than a server-stated limit.
+gaps:
+- No rate-limit documentation page exists.
+- No 429 semantics documented.
+- Behaviour at the on-demand credit cap is not documented.
+cross_links:
+  conventions: conventions/hockeystack-conventions.yml
+  errors: errors/hockeystack-problem-types.yml
+  plans: plans/hockeystack-plans-pricing.yml
+checked: '2026-08-13'
