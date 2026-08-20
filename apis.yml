@@ -65,6 +65,11 @@ apis:
   - Revenue Intelligence
   - AI Agents
   - Account Intelligence
+  - Task
+  tags_raw:
+  - Revenue Intelligence
+  - AI Agents
+  - Account Intelligence
   - Tasks
   properties:
   - type: Documentation
