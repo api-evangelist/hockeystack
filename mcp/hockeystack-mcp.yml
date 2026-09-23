@@ -2,23 +2,17 @@ generated: '2026-08-13'
 method: searched
 status: published
 source: https://www.npmjs.com/package/hockeystack-revenue-agents-mcp
-summary: >-
-  HockeyStack ships TWO distinct MCP surfaces: a hosted/remote "Omni" server bound to
-  the app (OAuth, discovered July 2026 via RFC 9728 metadata that has since been
-  withdrawn), and a locally-run stdio server on npm that wraps the Revenue Agents
-  REST API and exposes 30 tools. Only the second one has an enumerable tool list.
+summary: 'HockeyStack ships TWO distinct MCP surfaces: a hosted/remote "Omni" server bound to the app
+  (OAuth, discovered July 2026 via RFC 9728 metadata that has since been withdrawn), and a locally-run
+  stdio server on npm that wraps the Revenue Agents REST API and exposes 30 tools. Only the second one
+  has an enumerable tool list.'
 deployment:
-  mode: both
+  mode: remote
   endpoint: https://hockeystack.com/api/mcp/omni
-  install: npx -y hockeystack-revenue-agents-mcp
-  package: https://www.npmjs.com/package/hockeystack-revenue-agents-mcp
-  auth: oauth
   verified: probed
-  checked: '2026-08-13'
-  note: >-
-    mode is `both` because the two surfaces are different products, not two ways to
-    reach one. The remote endpoint is an app-bound agent an OAuth client can call;
-    the stdio package is a REST wrapper a human must install with an API token first.
+  probe: not-mcp
+  checked: '2026-08-12'
+  source: catalog MCP census
 servers:
 - name: HockeyStack Omni
   kind: remote
@@ -41,17 +35,14 @@ servers:
     method: POST
     status: 302
     location: /login?redirect=/api/mcp/omni
-    result: >-
-      session-login redirect, NOT an MCP OAuth 401 challenge — an MCP client
-      following spec would not get a WWW-Authenticate challenge here
+    result: session-login redirect, NOT an MCP OAuth 401 challenge — an MCP client following spec would
+      not get a WWW-Authenticate challenge here
     checked: '2026-08-13'
-  note: >-
-    tools[] is intentionally empty. The live tool list requires an authenticated
-    session and was never enumerable anonymously; it is not fabricated. See
-    well-known/hockeystack-well-known.yml — the RFC 8414 / RFC 9728 metadata
-    documents that described this server returned 200 on 2026-07-19 and return 404
-    on every host as of 2026-08-13, so the machine-readable discovery path to this
-    server no longer exists.
+  note: tools[] is intentionally empty. The live tool list requires an authenticated session and was never
+    enumerable anonymously; it is not fabricated. See well-known/hockeystack-well-known.yml — the RFC
+    8414 / RFC 9728 metadata documents that described this server returned 200 on 2026-07-19 and return
+    404 on every host as of 2026-08-13, so the machine-readable discovery path to this server no longer
+    exists.
 - name: HockeyStack Revenue Agents
   kind: local-stdio
   transport: stdio
@@ -62,18 +53,16 @@ servers:
   repository: https://github.com/bgrgndzz/hockeystack-revenue-agents-mcp
   docs: https://agents-docs.hockeystack.com/
   auth: api-key
-  auth_detail: >-
-    HOCKEYSTACK_API_TOKEN environment variable, format hsr_live_<hex>, sent as
-    Authorization: Bearer. Issued from HockeyStack workspace settings.
+  auth_detail: 'HOCKEYSTACK_API_TOKEN environment variable, format hsr_live_<hex>, sent as Authorization:
+    Bearer. Issued from HockeyStack workspace settings.'
   backing_api:
     name: HockeyStack Revenue Agents API
     version: v1
     base_url: https://app.hockeystack.com/api/revenue-agents/v1
     override_env: HOCKEYSTACK_BASE_URL
   tool_count: 30
-  tools_source: >-
-    Read verbatim from the published package build/index.js (server.tool
-    registrations) — real names, descriptions and backing routes, not inferred.
+  tools_source: Read verbatim from the published package build/index.js (server.tool registrations) —
+    real names, descriptions and backing routes, not inferred.
   tools:
   - name: hs_health
     category: service
@@ -91,10 +80,8 @@ servers:
   - name: hs_init_company_agent
     category: agents
     rest: PUT /companies/{companyId}/agent
-    description: >-
-      Initialize the company agent for a company (async). Returns 202. Poll
-      hs_get_company_agent until status flips from initializing to active.
-      Typically completes in 3-8 minutes.
+    description: Initialize the company agent for a company (async). Returns 202. Poll hs_get_company_agent
+      until status flips from initializing to active. Typically completes in 3-8 minutes.
   - name: hs_get_company_agent
     category: agents
     rest: GET /companies/{companyId}/agent
@@ -138,9 +125,8 @@ servers:
   - name: hs_send_deal_message
     category: conversations
     rest: POST /deals/{dealId}/conversations/{conversationId}/messages
-    description: >-
-      Send a message to an existing deal-agent conversation. Runs the agent
-      asynchronously, returns a job, and polls until it completes (default 5 min).
+    description: Send a message to an existing deal-agent conversation. Runs the agent asynchronously,
+      returns a job, and polls until it completes (default 5 min).
   - name: hs_get_deal_message_job
     category: conversations
     rest: GET /deals/{dealId}/conversations/{conversationId}/messages/jobs/{jobId}
@@ -184,9 +170,8 @@ servers:
   - name: hs_update_task
     category: tasks
     rest: PATCH /tasks/{taskId}
-    description: >-
-      Transition a task to a terminal state. Allowed pending → completed |
-      dismissed | cancelled. dismiss_reason required when status is dismissed.
+    description: Transition a task to a terminal state. Allowed pending → completed | dismissed | cancelled.
+      dismiss_reason required when status is dismissed.
   - name: hs_delete_task
     category: tasks
     rest: DELETE /tasks/{taskId}
@@ -209,9 +194,7 @@ cross_links:
   conventions: conventions/hockeystack-conventions.yml
   packages: packages/hockeystack-packages.yml
   data_model: data-model/hockeystack-data-model.yml
-notes: >-
-  The stdio server is the most complete public description of the HockeyStack
-  Revenue Agents API that exists — HockeyStack publishes no OpenAPI for it (see
-  x-coverage in apis.yml). Everything recorded here comes from the provider's own
-  published package, so operations are real; parameter-level schemas beyond those
-  captured in conventions/ live in the package's zod definitions.
+notes: The stdio server is the most complete public description of the HockeyStack Revenue Agents API
+  that exists — HockeyStack publishes no OpenAPI for it (see x-coverage in apis.yml). Everything recorded
+  here comes from the provider's own published package, so operations are real; parameter-level schemas
+  beyond those captured in conventions/ live in the package's zod definitions.

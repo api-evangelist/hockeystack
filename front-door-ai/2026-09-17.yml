@@ -1,0 +1,31 @@
+# Front Door AI Index — hockeystack — 2026-09-17
+# AI vocabulary counted on the provider's root page. Generated; do not edit.
+# `score` is null unless ownership is `own` — see front_door_ai.py.
+front_door_ai:
+  slug: hockeystack
+  lexicon_version: '1.0'
+  probed_at: '2026-09-17'
+  host: www.hockeystack.com
+  final_host: www.hockeystack.com
+  ownership: own
+  owner: hockeystack
+  shares_host_with: null
+  inherited_from: null
+  verdict: scored
+  score: 12
+  host_score: 12
+  density: 9.24
+  words: 1298
+  tiers:
+    agentic: 2
+    core: 10
+    model: 0
+  ambiguous: 10
+  top_terms:
+    AI: 10
+    intelligence: 4
+    predictive: 3
+    agent: 2
+    AI agent: 1
+    automation: 1
+    prompts: 1
